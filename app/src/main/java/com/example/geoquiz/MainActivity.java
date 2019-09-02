@@ -13,6 +13,7 @@ public class MainActivity extends AppCompatActivity {
     private Button mTrueButton;
     private Button mFalseButton;
     private Button mNextButton;
+    private Button mPrevButton;
     private TextView mQuestionTextView;
     private int mCurrentIndex = 0;
 
@@ -31,14 +32,15 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         mQuestionTextView = findViewById(R.id.question_text_view);
-        mQuestionTextView.setText(mQuestionBank[mCurrentIndex].getTextResId());
+        int textId = mQuestionBank[mCurrentIndex].getTextResId();
+        mQuestionTextView.setText(textId);
+        mQuestionTextView.setText(mCurrentIndex+" " + mQuestionTextView.getText());
 
         mTrueButton = findViewById(R.id.true_button);
-
         mTrueButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Toast.makeText(MainActivity.this, R.string.correct_toast, Toast.LENGTH_SHORT).show();
+                checkAnswer(true);
             }
         });
 
@@ -46,9 +48,10 @@ public class MainActivity extends AppCompatActivity {
         mFalseButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Toast.makeText(MainActivity.this, R.string.incorrect_toast, Toast.LENGTH_SHORT).show();
+                checkAnswer(false);
             }
         });
+
         mNextButton = findViewById(R.id.next_button);
         mNextButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -58,12 +61,36 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        mPrevButton = findViewById(R.id.prev_button);
+        mPrevButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                int len = mQuestionBank.length;
+                mCurrentIndex = Math.abs(len+((mCurrentIndex-1)%len))%len;
+                updateQuestion();
+            }
+        });
+
     }
 
-    private void updateQuestion(){
+    private void updateQuestion() {
         int questionId = mQuestionBank[mCurrentIndex].getTextResId();
         mQuestionTextView.setText(questionId);
+        mQuestionTextView.setText(mCurrentIndex+" " + mQuestionTextView.getText());
+    }
 
+    private void checkAnswer(boolean userPressedButton) {
+
+        boolean isAnswerTrue = mQuestionBank[mCurrentIndex].isAnswerTrue();
+
+        int answerId;
+
+        if (userPressedButton == isAnswerTrue)
+            answerId = R.string.correct_toast;
+        else
+            answerId = R.string.incorrect_toast;
+
+        Toast.makeText(MainActivity.this, answerId, Toast.LENGTH_SHORT).show();
     }
 
 }
